@@ -74,13 +74,6 @@ print(sim_results_df)
 #print(sim_results_df_arima)
 
 #%%
-#all_files = glob.glob( "./Results/*.csv")
-#results = []
-#for filename in sorted(all_files):
- #   df = pd.read_csv(filename, index_col=0)
-  #  results.append(df)
-#df_results_VoI = pd.concat(results, axis = 0, ignore_index=True)
-
 
 X_day_temp['Temperature'] =  X_day_temp['Temperature'].apply(lambda x : np.ceil(10 * x) / 10)
 
@@ -95,8 +88,8 @@ sim_results_df['ThD'] = sim_results_df['ThD'].round(2)
 df_results_VoI['ThD'] = df_results_VoI['ThD'].round(1)
 
 results_plots = plot_graphs.plot_results(thr_results_df, sim_results_df[::2], df_results_VoI[::4] )
-results_plots.plot_results1('../Figures/results1.pdf')
-results_plots.plot_results2('../Figures/results2.pdf')
-results_plots.plot_results3('../Figures/results3.pdf')
+results_plots.plot_results1('./Figures/results1.pdf')
+results_plots.plot_results2('./Figures/results2.pdf')
+results_plots.plot_results3('./Figures/results3.pdf')
 # %%
 # %%

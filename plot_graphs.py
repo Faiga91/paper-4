@@ -33,7 +33,7 @@ def plot_node_Temperature(df, node_id):
         ax.set(ylabel=None)
         ax.set(yticklabels=[])  
 
-    plt.savefig('../Figures/downsampling.pdf' , bbox_inches='tight')
+    plt.savefig('./Figures/downsampling.pdf' , bbox_inches='tight')
 
 def plot_temperature(df, file):
     """ 
