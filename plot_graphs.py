@@ -34,6 +34,7 @@ def plot_node_Temperature(df, node_id):
         ax.set(yticklabels=[])  
 
     plt.savefig('./Figures/downsampling.pdf' , bbox_inches='tight')
+    plt.show()
 
 def plot_temperature(df, file):
     """ 
@@ -42,6 +43,7 @@ def plot_temperature(df, file):
     fig, ax = set_plot_env()
     sns.lineplot('epoch' , 'Temperature', data=df, color = 'purple')
     plt.savefig(file , bbox_inches='tight')
+    plt.show()
 
 def heatmap_hour_temperature(X):
     #Show the heat map for that  hour 
@@ -85,6 +87,7 @@ def show_results_with_CI(X_test, prediction_mean, y_test, upper, lower, filename
     ax.set_xticklabels(ax.get_xticklabels(),rotation = 30)
     plt.legend()
     plt.savefig(filename, bbox_inches='tight')
+    plt.show()
 
 class plot_results():
     def __init__(self, threshold_results, similarity_results, VOI_results):
@@ -112,6 +115,7 @@ class plot_results():
         sns.scatterplot('Sampled', 'RMSE' , data= self.voi_res, color='#7570b3', marker = 'o', s=50)
 
         plt.savefig(filename, bbox_inches='tight')
+        plt.show()
 
     def plot_results2(self, filename):
         fig, ax = self.theme(1,1)
@@ -128,6 +132,7 @@ class plot_results():
         plt.xlabel('Sampling Reduction%')
         
         plt.savefig(filename , bbox_inches='tight')
+        plt.show()
 
     def plot_results3(self, filename):
 
@@ -178,3 +183,4 @@ class plot_results():
 
         #ax[0,1].set_title('Fig (a)')
         plt.savefig(filename , bbox_inches='tight')
+        plt.show()

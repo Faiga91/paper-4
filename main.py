@@ -11,7 +11,7 @@ import numpy as np
 
 from get_data import Data
 import plot_graphs
-from sampling import sampling
+from sampling import Sampling
 #%%
 warnings.filterwarnings("ignore")
 #%%
@@ -23,7 +23,7 @@ X_day_temp = mydata.get_day()
 # Node 18 is an outlie
 #plot_graphs.plot_node_Temperature(X_day_temp, 18)
 #X_day_temp_no = remove_outliers(X_day_temp, [8,18, 50, 53])
-X = mydata.get_array_X(X_day_temp[['epoch', 'moteid', 'Temperature']])
+X = mydata.get_array_x(X_day_temp[['epoch', 'moteid', 'Temperature']])
 X_Day = X_day_temp[['epoch', 'moteid', 'Temperature']]
 
 X_day_temp['time_list'] = pd.to_datetime(X_day_temp['date'] + ' ' + X_day_temp['time'])
@@ -32,7 +32,7 @@ time_dic = time_dic.drop_duplicates(subset=['epoch'])
 time_dic = time_dic.set_index('epoch')
 # %%
 
-down_sampling = sampling(X)
+down_sampling = Sampling(X)
 
 uniform_samp_results , downsampled_X = down_sampling.uniform_sampling()
 print(uniform_samp_results)
@@ -67,7 +67,7 @@ ref_prob = pd.Series(1e-10, index=Temp_probabilities.index)
 Temperature_value = ref_prob.index.values.tolist()
 
 down_sampling.voi_sampling_light(ref_prob, Temperature_value,
-    './Results/VOI_results.csv', np.arange(1.1, 1.5, 0.01), time_dic)
+    './Results/VOI_results.csv', time_dic)
 df_results_VoI = pd.read_csv("./Results/VOI_results.csv")
 #%%
 sim_results_df['ThD'] = sim_results_df['ThD'].round(2)

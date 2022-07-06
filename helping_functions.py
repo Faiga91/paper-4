@@ -11,4 +11,4 @@ def get_metrics(df1_, df2_):
     x_mean = df1_.values.mean()
     nmae_ = mean_absolute_error(df1_, df2_, multioutput="uniform_average") / x_mean
     rmse_ = mean_squared_error(df1_,df2_, squared=False)
-    return (nmae_, rmse_)
+    return ([nmae_, rmse_])
