@@ -1,33 +1,18 @@
+"""
+Main module that run all the other submodules in this folder.
+"""
 #%%
+# standard imports
+import warnings
 
-import pandas as pd 
-import matplotlib.pyplot as plt 
-import seaborn as sns 
+# third party import
+import pandas as pd
 import numpy as np
-from datetime import timedelta
-
-from sklearn.metrics import mean_absolute_error
-from sklearn.metrics import mean_squared_error
-
-from math import log2
 
 from get_data import data
-import plot_graphs 
+import plot_graphs
 from sampling import sampling
-
-from scipy.special import rel_entr, kl_div
-from helping_functions import *
-
-from scipy.stats import mode
-import glob
-
-from NN_helping_functions import *
-from sklearn.model_selection import train_test_split
-
-from sklearn.ensemble import RandomForestRegressor
-
 #%%
-import warnings
 warnings.filterwarnings("ignore")
 #%%
 mydata = data()
@@ -63,13 +48,13 @@ print("Threshold method")
 thr_results_df = down_sampling.threshold_based()
 print(thr_results_df)
 
-# Based on data similarity 
+# Based on data similarity
 print("Similarity-based methods")
 sim_results_df = down_sampling.similarity_based()
 print(sim_results_df)
 
 
-# Based on data similarity 
+# Based on data similarity
 #sim_results_df_arima = down_sampling.similarity_based_ARIMA(time_dic)
 #print(sim_results_df_arima)
 
@@ -81,7 +66,8 @@ Temp_probabilities = X_day_temp.groupby('Temperature').size().div(len(X_day_temp
 ref_prob = pd.Series(1e-10, index=Temp_probabilities.index)
 Temperature_value = ref_prob.index.values.tolist()
 
-down_sampling.voi_sampling_light(ref_prob, Temperature_value, './Results/VOI_results.csv', np.arange(1.1, 1.5, 0.01), time_dic)
+down_sampling.voi_sampling_light(ref_prob, Temperature_value,
+    './Results/VOI_results.csv', np.arange(1.1, 1.5, 0.01), time_dic)
 df_results_VoI = pd.read_csv("./Results/VOI_results.csv")
 #%%
 sim_results_df['ThD'] = sim_results_df['ThD'].round(2)
