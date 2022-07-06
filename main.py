@@ -9,13 +9,13 @@ import warnings
 import pandas as pd
 import numpy as np
 
-from get_data import data
+from get_data import Data
 import plot_graphs
 from sampling import sampling
 #%%
 warnings.filterwarnings("ignore")
 #%%
-mydata = data()
+mydata = Data()
 
 X_day_temp = mydata.get_day()
 #%%
