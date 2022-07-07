@@ -25,14 +25,28 @@ def get_kl(x_10mp, ref_prob, temperature_value):
     kl_pq = sum(kl_div(p_prob.values, q_prob.values))
     return kl_pq
 
+def get_predictions_arima(x_10mp,time_dic):
+    """
+    Get prediction results.
+    """
+    x_e = x_10mp.copy()
+    df_e = x_e.reset_index().melt(id_vars=['moteid'], value_vars =x_e.columns,
+            value_name='Temperature')
+    df_e['time'] = df_e['epoch'].map(time_dic['time_list'])
+    df_e = df_e.set_index('time')['Temperature']
+
+    results = ARIMA(df_e, order=(12,1,10)).fit()
+    return results
+
 class Sampling():
     """
     The sampling class.
     """
-    def __init__(self, x__):
+    def __init__(self, x__, time_dic):
         self.epochs = x__.columns.values
         self.x__ = x__
         self.thresholds = np.arange(1.1, 1.5, 0.01)
+        self.time_dic = time_dic
 
     def threshold_based(self):
         """
@@ -92,63 +106,44 @@ class Sampling():
         df_results = pd.DataFrame(results, columns=['ThD', 'Sampled', 'Sampl%', 'NMAE', 'RMSE'])
         return df_results
 
-    def voi_sampling_light(self,ref_prob, temperature_value, filename, time_dic):
+    def voi_sampling_light(self,ref_prob, temperature_value):
         """
         voi-based sampling.
         """
-        results_list = []
         #node 1 only
         x_0 =  self.x__.iloc[ 0:1 ,:]
         #X_ = round(X_0, 1)
-        n_count = x_0.iloc[: , 0:60].size
-        counts = []
-        df_down = []
+        # metrics[0] = counts, metrics[1]=df_down, metrics[2]=kl_pq_l,
+            #metrics[3] = results_list
+        metrics = [[], [] , []]
         for _ in range(len(self.thresholds)):
-            counts.append(n_count)
-            df_down.append(x_0.copy())
-        kl_pq_l = []
+            metrics[0].append(x_0.iloc[: , 0:60].size)
+            metrics[1].append(x_0.copy())
         for j, _ in enumerate(self.thresholds):
-            print ("The Threshold I'm working on: " , j)
-            count = 0
             for epoch in range(0, len(self.epochs) - 60 , 60):
                 print("The epoch I am processing is ", epoch+60)
                 e_n = epoch + 60
-                x_10mp = df_down[j].iloc[: , epoch:e_n]
-                x_10mq = df_down[j].iloc[: , e_n:e_n + 60]
+                x_10mp = metrics[1][j].iloc[: , epoch:e_n]
+                x_10mq = metrics[1][j].iloc[: , e_n:e_n + 60]
                 x_10mp = round(x_10mp, 1)
                 kl_pq = get_kl(x_10mp, ref_prob, temperature_value)
-                kl_pq_l.append(kl_pq)
+                metrics[2].append(kl_pq)
                 #ARIMA model
-                x_e = x_10mp.copy()
-                df_e = x_e.reset_index().melt(id_vars=['moteid'], value_vars =x_e.columns,
-                        value_name='Temperature')
-                df_e['time'] = df_e['epoch'].map(time_dic['time_list'])
-                df_ex = df_e.set_index('time')['Temperature']
-
-                model = ARIMA(df_ex, order=(12,1,10))
-                results = model.fit()
-
-                x_hat = results.predict(1,120)[60:]
+                x_hat = get_predictions_arima(x_10mp,self.time_dic).predict(1,120)[60:]
                 x_hat = round(x_hat, 1)
 
                 if kl_pq > self.thresholds[j]:
-                    counts[j] += x_10mq.size
+                    metrics[0][j] += x_10mq.size
 
                 else:
-                    df_down[j].iloc[: , e_n:e_n+60] = x_hat
-                    counts[j] += 0
-                count += x_10mp.size
-                if epoch== len(self.epochs) - 60:
-                    count += x_10mq.size
-                #print("The count for this hour: ", count)
-                #print("and the reduced count is: ", counts[j])
-            evaluate_ = get_metrics(x_0, df_down[j])
-            results_list.append([self.thresholds[j], counts[j], round(1- counts[j]/2880, 3),
+                    metrics[1][j].iloc[: , e_n:e_n+60] = x_hat
+                    metrics[0][j] += 0
+            evaluate_ = get_metrics(x_0, metrics[1][j])
+            metrics[3].append([self.thresholds[j], metrics[0][j], round(1- metrics[0][j]/2880, 3),
                             round(evaluate_[0], 5),  round(evaluate_[1],5) ])
-            print(kl_pq_l)
-        df_results = pd.DataFrame(results_list, columns=['ThD', 'Sampled', 'Sampl%',
+        df_results = pd.DataFrame(metrics[3], columns=['ThD', 'Sampled', 'Sampl%',
                                 'NMAE', 'RMSE'])
-        df_results.to_csv(filename)
+        df_results.to_csv( './Results/VOI_results.csv')
 
     def uniform_sampling(self):
         """

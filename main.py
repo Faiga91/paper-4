@@ -9,7 +9,7 @@ import warnings
 import pandas as pd
 import numpy as np
 
-from get_data import Data
+from get_data import Data, get_array_x
 import plot_graphs
 from sampling import Sampling
 #%%
@@ -20,9 +20,9 @@ X_day_temp = mydata.get_day()
 #%%
 
 # Node 18 is an outlie
-#plot_graphs.plot_node_Temperature(X_day_temp, 18)
+#plot_graphs.plot_node_temperature(X_day_temp, 18)
 #X_day_temp_no = remove_outliers(X_day_temp, [8,18, 50, 53])
-X = mydata.get_array_x(X_day_temp[['epoch', 'moteid', 'Temperature']])
+X = get_array_x(X_day_temp[['epoch', 'moteid', 'Temperature']])
 X_Day = X_day_temp[['epoch', 'moteid', 'Temperature']]
 
 X_day_temp['time_list'] = pd.to_datetime(X_day_temp['date'] + ' ' + X_day_temp['time'])
@@ -31,12 +31,12 @@ time_dic = time_dic.drop_duplicates(subset=['epoch'])
 time_dic = time_dic.set_index('epoch')
 # %%
 
-down_sampling = Sampling(X)
+down_sampling = Sampling(X, time_dic)
 
 uniform_samp_results , downsampled_X = down_sampling.uniform_sampling()
 print(uniform_samp_results)
 
-plot_graphs.plot_node_Temperature(X_day_temp, 1.0)
+plot_graphs.plot_node_temperature(X_day_temp, 1.0)
 
 #%%
 #print('Spatially Uniform Sampling')
@@ -65,14 +65,13 @@ Temp_probabilities = X_day_temp.groupby('Temperature').size().div(len(X_day_temp
 ref_prob = pd.Series(1e-10, index=Temp_probabilities.index)
 Temperature_value = ref_prob.index.values.tolist()
 
-down_sampling.voi_sampling_light(ref_prob, Temperature_value,
-    './Results/VOI_results.csv', time_dic)
+down_sampling.voi_sampling_light(ref_prob, Temperature_value)
 df_results_VoI = pd.read_csv("./Results/VOI_results.csv")
 #%%
 sim_results_df['ThD'] = sim_results_df['ThD'].round(2)
 df_results_VoI['ThD'] = df_results_VoI['ThD'].round(1)
 
-results_plots = plot_graphs.plot_results(thr_results_df, sim_results_df[::2], df_results_VoI[::4] )
+results_plots = plot_graphs.PlotResults(thr_results_df, sim_results_df[::2], df_results_VoI[::4] )
 results_plots.plot_results1('./Figures/results1.pdf')
 results_plots.plot_results2('./Figures/results2.pdf')
 results_plots.plot_results3('./Figures/results3.pdf')

@@ -1,186 +1,242 @@
-import matplotlib.pyplot as plt 
-import seaborn as sns 
+"""
+Module for all the plots related to this repository.
+"""
+import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 from matplotlib.ticker import PercentFormatter
 
 def set_plot_env():
+    """
+    Setup function.
+    """
     sns.set_theme(style="darkgrid")
     sns.set_context("paper", font_scale=2)
-    fig, ax = plt.subplots(figsize=(10, 5))
-    return fig, ax
+    fig_, ax_ = plt.subplots(figsize=(10, 5))
+    return fig_, ax_
 
 def set_heatmap_env():
+    """
+    Plot heatmap.
+    """
     sns.set_theme(style="darkgrid")
     sns.set_context("paper", font_scale=1.5)
-    fig, ax = plt.subplots(figsize=(10, 10))
-    return fig, ax
+    fig_, ax_ = plt.subplots(figsize=(10, 10))
+    return fig_, ax_
 
-def plot_node_Temperature(df, node_id):
-    #fig, ax = set_plot_env()
-    fig, axes  = plt.subplots(1,4,figsize=(20, 7))
-    
-    df = df[df['moteid'] == node_id]
-    df = df.set_index('time_list')
+def plot_node_temperature(df_, node_id):
+    """
+    Plotting the temperature.
+    Inputs:
+    - df_: the dataframe containing the temp values.
+    - node_id: the node id, int between 1-54.
+    """
+    _, axes  = plt.subplots(1,4,figsize=(20, 7))
 
-    sns.scatterplot(x = "epoch", y = "Temperature", data = df, label='Original', marker='X', ax = axes[0])
-    sns.scatterplot(x = "epoch", y="Temperature", data =df[::2], label ='50%', color='green', marker='X', ax=axes[1])
-    sns.scatterplot(x = "epoch", y="Temperature", data =df[::4], label ='75%', color='red', marker='X', ax=axes[2])
-    sns.scatterplot(x = "epoch", y="Temperature", data =df[::10], label ='90%', color='k', marker='X', ax=axes[3])
+    df_ = df_[df_['moteid'] == node_id]
+    df_ = df_.set_index('time_list')
+
+    sns.scatterplot(x = "epoch", y = "Temperature", data = df_, label='Original',
+                    marker='X', ax = axes[0])
+    sns.scatterplot(x = "epoch", y="Temperature", data =df_[::2], label ='50%',
+                color='green', marker='X', ax=axes[1])
+    sns.scatterplot(x = "epoch", y="Temperature", data =df_[::4], label ='75%',
+                color='red', marker='X', ax=axes[2])
+    sns.scatterplot(x = "epoch", y="Temperature", data =df_[::10], label ='90%',
+            color='k', marker='X', ax=axes[3])
 
     plt.ylabel('Temperature')
 
-    for ax in [axes[1], axes[2], axes[3]]:
-        ax.set(ylabel=None)
-        ax.set(yticklabels=[])  
+    for ax_ in [axes[1], axes[2], axes[3]]:
+        ax_.set(ylabel=None)
+        ax_.set(yticklabels=[])
 
     plt.savefig('./Figures/downsampling.pdf' , bbox_inches='tight')
     plt.show()
 
-def plot_temperature(df, file):
-    """ 
+def plot_temperature(df_, file):
+    """
     plot the temperature variable from all the nodes
     """
-    fig, ax = set_plot_env()
-    sns.lineplot('epoch' , 'Temperature', data=df, color = 'purple')
+    _, _ = set_plot_env()
+    sns.lineplot(x = df_['epoch'] , y = df_['Temperature'], color = 'purple')
     plt.savefig(file , bbox_inches='tight')
     plt.show()
 
-def heatmap_hour_temperature(X):
-    #Show the heat map for that  hour 
+def heatmap_hour_temperature(x__):
+    """
+    Plot heatmap for only one hour.
+    Input:
+    X: x-array containing the temp values.
+    """
+    #Show the heat map for that  hour
     colors = ['#d53e4f','#f46d43','#fdae61','#fee08b','#e6f598','#abdda4','#66c2a5','#3288bd']
     hour_start = np.arange(25804,28683 + 120 ,120)
     for i in range(len(hour_start) -1):
-        fig, ax = set_heatmap_env()
+        _, _ = set_heatmap_env()
         hour_v = np.arange(hour_start[i],hour_start[i+1])
-        X_hour = X[hour_v]
-        sns.heatmap(X_hour, yticklabels=True, vmin = 18, vmax = 38, cmap=sns.color_palette(colors))
-        plt.savefig('./Figures/' + 'X_Hour' +str(i), bbox_inches='tight')
+        x_hour = x__[hour_v]
+        sns.heatmap(x_hour, yticklabels=True, vmin = 18, vmax = 38, cmap=sns.color_palette(colors))
+        plt.savefig('./Figures/' + 'x_hour' +str(i), bbox_inches='tight')
 
-def plot_temperature_array(X):
+def plot_temperature_array(x__):
     """
     plot the temperature for each mote in the array X
     """
-    for mote in X.index:
-        X_mote = X.loc[mote]
-        fig, ax = set_plot_env()
-        sns.scatterplot(X_mote.index, X_mote)
+    for mote in x__.index:
+        x_mote = x__.loc[mote]
+        _, _ = set_plot_env()
+        sns.scatterplot(x = x_mote.index, y = x_mote)
         plt.savefig('./Figures/X_mote/' + 'X_mote' + str(mote) + '.png', bbox_inches='tight')
 
-def plot_density(df, file):
-    fig, ax = set_heatmap_env()
-    df.plot()
+def plot_density(df_, file):
+    """
+    Plot the density and save it into a fig file.
+    Input:
+    df_ - the dataframe.
+    file - where to save.
+    """
+    _, _ = set_heatmap_env()
+    df_.plot()
     plt.savefig(file, bbox_inches='tight')
 
 def show_result(y_test, predicted):
-    fig, ax = set_plot_env()
+    """
+    Plot the prediction Vs. the real values.
+    """
+    _, _ = set_plot_env()
     plt.plot(y_test.index, predicted, 'o-', label="predicted")
     plt.plot(y_test.index, y_test, '.-', label="actual")
     plt.ylabel("Temperature")
     plt.legend()
 
-def show_results_with_CI(X_test, prediction_mean, y_test, upper, lower, filename):
-    fig, ax = set_plot_env()
-    plt.plot(X_test, prediction_mean, color='red', label="predicted mean")
-    plt.plot(X_test, y_test, '.-', label="actual")
-    plt.fill_between(X_test, upper, lower, color='gray', label="95% CI")
+def show_results_with_ci(x_test, prediction_mean, y_test, ci_, filename):
+    """
+    Plot the results with confidence interval.
+    ci = a list with both the upper and lower values for the ci_.
+    ci_[0] = lower, and ci_[1] = upper.
+    """
+    _, ax_ = set_plot_env()
+    plt.plot(x_test, prediction_mean, color='red', label="predicted mean")
+    plt.plot(x_test, y_test, '.-', label="actual")
+    plt.fill_between(x_test, ci_[1], ci_[0], color='gray', label="95% CI")
     plt.ylabel("Temperature")
-    ax.set_xticklabels(ax.get_xticklabels(),rotation = 30)
+    ax_.set_xticklabels(ax_.get_xticklabels(),rotation = 30)
     plt.legend()
     plt.savefig(filename, bbox_inches='tight')
     plt.show()
 
-class plot_results():
-    def __init__(self, threshold_results, similarity_results, VOI_results):
+
+def theme(subplots_rows, subplots_col):
+    """
+    Set up method.
+    """
+    sns.set_theme(style="white")
+    sns.set_context("paper", font_scale=1.5)
+    fig_, ax_ = plt.subplots(subplots_rows,subplots_col,figsize=(12, 6))
+    return fig_, ax_
+
+class PlotResults():
+    """
+    Class to plot the results.
+    """
+    def __init__(self, threshold_results, similarity_results, voi_results):
         self.thr_res = threshold_results
         self.sim_res = similarity_results
-        self.voi_res = VOI_results
-
-    def theme(self, n, m):
-        sns.set_theme(style="white")
-        sns.set_context("paper", font_scale=1.5)
-        #sns.set(font="Times")
-        fig, ax = plt.subplots(n,m,figsize=(12, 6))
-        return fig, ax
+        self.voi_res = voi_results
 
     def plot_results1(self, filename):
-        fig, ax = self.theme(1,1)
+        """
+        Plot the results with lines for each algorithm - use RMSE.
+        """
+        _, _ = theme(1,1)
 
-        sns.lineplot('Sampled', 'RMSE' , data= self.thr_res, color='#d95f02', label='Threshold-based Scheduling')
-        sns.scatterplot('Sampled', 'RMSE' , data= self.thr_res,color='#d95f02', marker = 'o', s=50)
+        sns.lineplot(x = self.thr_res['Sampled'], y = self.thr_res['RMSE'] , color='#d95f02',
+                            label='Threshold-based Scheduling')
+        sns.scatterplot(x = 'Sampled', y = 'RMSE' , data= self.thr_res,
+                        color='#d95f02', marker = 'o', s=50)
 
-        sns.lineplot('Sampled', 'RMSE' , data= self.sim_res, color='#1b9e77', linestyle='--', label='Similarity-based Scheduling')
-        sns.scatterplot('Sampled', 'RMSE' , data= self.sim_res, color='#1b9e77', marker = 'o', s=50)
+        sns.lineplot(x ='Sampled', y= 'RMSE' , data= self.sim_res,
+                    color='#1b9e77', linestyle='--',
+                        label='Similarity-based Scheduling')
+        sns.scatterplot(x ='Sampled', y='RMSE' , data= self.sim_res,
+                    color='#1b9e77', marker = 'o', s=50)
 
-        sns.lineplot('Sampled', 'RMSE' , data= self.voi_res, color='#7570b3', linestyle='--', label='VoI-based Scheduling')
-        sns.scatterplot('Sampled', 'RMSE' , data= self.voi_res, color='#7570b3', marker = 'o', s=50)
+        sns.lineplot(x='Sampled', y ='RMSE' , data= self.voi_res, color='#7570b3', linestyle='--',
+                                label='VoI-based Scheduling')
+        sns.scatterplot(x ='Sampled', y ='RMSE' , data= self.voi_res,
+                    color='#7570b3', marker = 'o', s=50)
 
         plt.savefig(filename, bbox_inches='tight')
         plt.show()
 
     def plot_results2(self, filename):
-        fig, ax = self.theme(1,1)
-        sns.lineplot('Sampl%', 'NMAE' , data= self.thr_res, color='#d95f02', label='Threshold-based Scheduling')
-        sns.scatterplot('Sampl%', 'NMAE' , data= self.thr_res, color='#d95f02', marker = 'o', s=50)
+        """
+        Plot the results with line for each alogorithm - use NMAE.
+        """
+        _, ax_ = theme(1,1)
+        sns.lineplot(x ='Sampl%', y ='NMAE' , data= self.thr_res, color='#d95f02',
+                        label='Threshold-based Scheduling')
+        sns.scatterplot(x ='Sampl%', y= 'NMAE' , data= self.thr_res,
+                    color='#d95f02', marker = 'o', s=50)
 
-        sns.lineplot('Sampl%', 'NMAE' , data= self.sim_res, color='#1b9e77', linestyle='--', label='Similarity-based Scheduling')
-        sns.scatterplot('Sampl%', 'NMAE' , data= self.sim_res, color='#1b9e77', marker = 'o', s=50)
+        sns.lineplot(x ='Sampl%',y = 'NMAE' , data= self.sim_res, color='#1b9e77',
+                    linestyle='--', label='Similarity-based Scheduling')
+        sns.scatterplot(x ='Sampl%', y ='NMAE' , data= self.sim_res, color='#1b9e77',
+                             marker = 'o', s=50)
+        sns.lineplot(x = 'Sampl%', y = 'NMAE' , data= self.voi_res, color='#7570b3',
+                    linestyle='--', label='VoI-based Scheduling')
+        sns.scatterplot(x = 'Sampl%', y ='NMAE' , data= self.voi_res, color='#7570b3',
+                        marker = 'o', s=50)
 
-        sns.lineplot('Sampl%', 'NMAE' , data= self.voi_res, color='#7570b3', linestyle='--', label='VoI-based Scheduling')
-        sns.scatterplot('Sampl%', 'NMAE' , data= self.voi_res, color='#7570b3', marker = 'o', s=50)
-
-        ax.xaxis.set_major_formatter(PercentFormatter(1))
+        ax_.xaxis.set_major_formatter(PercentFormatter(1))
         plt.xlabel('Sampling Reduction%')
-        
+
         plt.savefig(filename , bbox_inches='tight')
         plt.show()
 
     def plot_results3(self, filename):
+        """
+        Plot results, using the hashed plot bars.
+        """
+        _, ax_1 = plt.subplots(2,3,figsize=(15, 15))
 
-        fig, ax1 = plt.subplots(2,3,figsize=(15, 15))
-        #fig, ax1 =  self.theme(1,3)
+        sns.barplot(x ='std', y ='NMAE' , data= self.thr_res, color='#d95f02',
+                        label='Threshold-based', ax =ax_1[0,0])
+        sns.barplot(x = 'std' , y='Sampl%',  data= self.thr_res, color='#d95f02',
+                        alpha=0.7, hatch='xx',
+                        label='%Reduction', ax=ax_1[1,0])
+        sns.barplot(x='ThD', y='NMAE' , data= self.sim_res, color='#1b9e77',
+                                label='Similarity-based', ax =ax_1[0,1])
+        sns.barplot(x='ThD' ,y='Sampl%',  data= self.sim_res, color='#1b9e77', alpha=0.7,
+                        hatch='xx',label='%Reduction', ax=ax_1[1,1])
+        sns.barplot(x='ThD' ,y='NMAE',  data= self.voi_res, color='#7570b3',
+                        label='VoI-based', ax=ax_1[0,2])
+        sns.barplot(x='ThD' ,y='Sampl%',  data= self.voi_res, color='#7570b3', alpha=0.7,
+                    hatch='xx', label='%Reduction', ax=ax_1[1,2])
 
-        #ax21 = ax1[0].twinx()
-        #ax22 = ax1[1].twinx()
-        #ax23 = ax1[2].twinx()
+        for ax_ in [ax_1[0,0], ax_1[0,1], ax_1[0,2]]:
+            ax_.xaxis.set_tick_params(which='both', rotation=90)
+            ax_.set_ylim(0, )
 
-        sns.barplot('std', 'NMAE' , data= self.thr_res, color='#d95f02',  label='Threshold-based', ax =ax1[0,0])
-        sns.barplot('std' , 'Sampl%',  data= self.thr_res, color='#d95f02', alpha=0.7, hatch='xx', label='%Reduction', ax=ax1[1,0])
-        sns.barplot('ThD', 'NMAE' , data= self.sim_res, color='#1b9e77',  label='Similarity-based', ax =ax1[0,1])
-        sns.barplot('ThD' , 'Sampl%',  data= self.sim_res, color='#1b9e77', alpha=0.7, hatch='xx',label='%Reduction', ax=ax1[1,1])
-        sns.barplot('ThD' , 'NMAE',  data= self.voi_res, color='#7570b3',label='VoI-based', ax=ax1[0,2])
-        sns.barplot('ThD' , 'Sampl%',  data= self.voi_res, color='#7570b3', alpha=0.7, hatch='xx', label='%Reduction', ax=ax1[1,2])
+        for ax_ in [ax_1[1,0], ax_1[1,1], ax_1[1,2]]:
+            ax_.set_ylim(0, 1)
+            ax_.yaxis.set_major_formatter(PercentFormatter(1))
+            ax_.xaxis.set_tick_params(which='both', rotation=90)
+            ax_.set(ylabel='Sampling Reduction%')
 
-        #width_scale = 0.45
-        #for container in [ax21.containers[0], ax22.containers[0], ax23.containers[0]]:
-         #   for bar in container:
-          #      x = bar.get_x()
-           #     w = bar.get_width()
-            #    bar.set_x(x + w * (1- width_scale))
-             #   bar.set_width(w * width_scale)
+        for ax_ in [ax_1[0,1], ax_1[0,2] , ax_1[1,1], ax_1[1,2]]:
+            ax_.set(ylabel=None)
+            ax_.set(yticklabels=[])
 
-        for ax in [ax1[0,0], ax1[0,1], ax1[0,2]]:
-            ax.xaxis.set_tick_params(which='both', rotation=90)
-            ax.set_ylim(0, )
+        for ax_ in [ax_1[0,0], ax_1[1,0]]:
+            ax_.set(xlabel='Absolute Threshold')
 
-        for ax in [ax1[1,0], ax1[1,1], ax1[1,2]]:
-            ax.set_ylim(0, 1)
-            ax.yaxis.set_major_formatter(PercentFormatter(1))
-            ax.xaxis.set_tick_params(which='both', rotation=90)
-            ax.set(ylabel='Sampling Reduction%')
+        for ax_ in [ax_1[0,1], ax_1[1,1]]:
+            ax_.set(xlabel='Similarity Threshold')
 
-        for ax in [ax1[0,1], ax1[0,2] , ax1[1,1], ax1[1,2]]:
-            ax.set(ylabel=None)
-            ax.set(yticklabels=[])  
+        for ax_ in [ax_1[0,2], ax_1[1,2]]:
+            ax_.set(xlabel='KL-divergence Threshold')
 
-        for ax in [ax1[0,0], ax1[1,0]]:
-            ax.set(xlabel='Absolute Threshold')
-
-        for ax in [ax1[0,1], ax1[1,1]]:
-            ax.set(xlabel='Similarity Threshold')
-        
-        for ax in [ax1[0,2], ax1[1,2]]:
-            ax.set(xlabel='KL-divergence Threshold')
-
-        #ax[0,1].set_title('Fig (a)')
         plt.savefig(filename , bbox_inches='tight')
         plt.show()
