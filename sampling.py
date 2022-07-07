@@ -12,6 +12,19 @@ from sklearn.metrics import mean_squared_error
 
 from helping_functions import get_metrics
 
+def get_kl(x_10mp, ref_prob, temperature_value):
+    """
+    A helper function for the voi_sampling_light method, that compute the KL-Divergence.
+    """
+    count_values = np.unique(x_10mp.values.flatten(), return_counts=True)
+    prob_den_10p = pd.Series(count_values[1], index= count_values[0])
+    count= prob_den_10p.combine(ref_prob, max, fill_value=0)
+    p_prob= count/ count.sum()
+    alphas = np.ones(len(temperature_value))
+    q_prob = (alphas + count) / (count.sum() + alphas.sum())
+    kl_pq = sum(kl_div(p_prob.values, q_prob.values))
+    return kl_pq
+
 class Sampling():
     """
     The sampling class.
@@ -79,9 +92,6 @@ class Sampling():
         df_results = pd.DataFrame(results, columns=['ThD', 'Sampled', 'Sampl%', 'NMAE', 'RMSE'])
         return df_results
 
-    #TODO write a function to get the KL-Divergence values.
-    #def get_kl()
-
     def voi_sampling_light(self,ref_prob, temperature_value, filename, time_dic):
         """
         voi-based sampling.
@@ -106,13 +116,7 @@ class Sampling():
                 x_10mp = df_down[j].iloc[: , epoch:e_n]
                 x_10mq = df_down[j].iloc[: , e_n:e_n + 60]
                 x_10mp = round(x_10mp, 1)
-                count_values = np.unique(x_10mp.values.flatten(), return_counts=True)
-                prob_den_10p = pd.Series(count_values[1], index= count_values[0])
-                count= prob_den_10p.combine(ref_prob, max, fill_value=0)
-                p_prob= count/ count.sum()
-                alphas = np.ones(len(temperature_value))
-                q_prob = (alphas + count) / (count.sum() + alphas.sum())
-                kl_pq = sum(kl_div(p_prob.values, q_prob.values))
+                kl_pq = get_kl(x_10mp, ref_prob, temperature_value)
                 kl_pq_l.append(kl_pq)
                 #ARIMA model
                 x_e = x_10mp.copy()
