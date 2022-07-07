@@ -14,9 +14,8 @@ import plot_graphs
 from sampling import Sampling
 #%%
 warnings.filterwarnings("ignore")
-#%%
-mydata = Data()
 
+mydata = Data()
 X_day_temp = mydata.get_day()
 #%%
 

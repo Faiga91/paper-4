@@ -2,6 +2,8 @@
 Module for reading the data into dataframes from the .csv data file.
 """
 import pandas as pd
+import os.path
+import requests
 import numpy as np
 from scipy.stats import zscore
 
@@ -11,8 +13,23 @@ class Data():
     """
     def __init__(self):
         self.data_path = './Data/data.csv'
-        self.data = pd.read_csv(self.data_path, names=['date' , 'time' , 'epoch', 'moteid',
+        if os.path.exists('./Data/data.csv'):
+            self.data = pd.read_csv(self.data_path, names=['date' , 'time' , 'epoch', 'moteid',
                         'Temperature', 'Humidity', 'Light', 'Voltage'])
+        else:
+            if os.path.exists('./Data') == False:
+                os.mkdir('./Data')
+            else:
+                print("Downloading the data file ..")
+                res = requests.get('http://db.csail.mit.edu/labdata/data.txt.gz')
+                url_content = res.content
+                csv_file = open('downloaded.csv', 'wb')
+                csv_file.write(url_content)
+                csv_file.close()
+                self.data = pd.read_csv('downloaded.csv', compression='gzip', sep=" ",
+                    names=['date' , 'time' , 'epoch', 'moteid', 'Temperature', 'Humidity', 'Light', 'Voltage'])
+                self.data.to_csv('./Data/data.csv')
+
         self.data_clean = self.remove_outliers()
 
     def remove_outliers(self):
@@ -35,7 +52,6 @@ class Data():
         abs_z_scores = np.abs(z_scores)
         filtered_entries = (abs_z_scores < 3).all(axis=1)
         return filtered_entries
-
 
     def get_day(self):
         """
@@ -63,7 +79,6 @@ class Data():
         # Choose the day with the least missing values
         x_day = self.data_clean[self.data_clean['date'] == least_missing.values[0][0]]
         x_day_temp = x_day[['time', 'epoch', 'moteid', 'Temperature', 'date']]
-
         return x_day_temp
 
     def get_array_x(self, df_):
@@ -112,14 +127,12 @@ def clusters(df_):
     c4_ = list(range(29,37))
     c5_ = list(range(37,45))
     c6_ = [x for x in range(45,55) if x not in [50, 53]]
-
     df1 = df_[df_['moteid'].isin(c1_)]
     df2 = df_[df_['moteid'].isin(c2_)]
     df3 = df_[df_['moteid'].isin(c3_)]
     df4 = df_[df_['moteid'].isin(c4_)]
     df5 = df_[df_['moteid'].isin(c5_)]
     df6 = df_[df_['moteid'].isin(c6_)]
-
     return (df1, df2, df3, df4, df5, df6)
 
 def light_level(light):
