@@ -1,11 +1,31 @@
 """
 Module for reading the data into dataframes from the .csv data file.
 """
-import pandas as pd
 import os.path
+import pandas as pd
 import requests
 import numpy as np
 from scipy.stats import zscore
+
+def clean_data(df_):
+    """
+    Remove outliers using the Z-score.
+    """
+    z_scores = zscore(df_)
+    abs_z_scores = np.abs(z_scores)
+    filtered_entries = (abs_z_scores < 3).all(axis=1)
+    return filtered_entries
+
+def get_array_x(df_):
+    """
+    Fill the missing data and use pivot to get the data in an array shape.
+    """
+    x_array = df_.pivot(index='moteid', columns = 'epoch', values='Temperature')
+    # Fill missing data using forward fill => if the node did not make
+    # a new measurement it will buffer the previous one
+    x_array = x_array.ffill(axis = 'columns')
+    x_array = x_array.bfill(axis = 'columns')
+    return x_array
 
 class Data():
     """
@@ -17,17 +37,17 @@ class Data():
             self.data = pd.read_csv(self.data_path, names=['date' , 'time' , 'epoch', 'moteid',
                         'Temperature', 'Humidity', 'Light', 'Voltage'])
         else:
-            if os.path.exists('./Data') == False:
+            if os.path.exists('./Data') is False:
                 os.mkdir('./Data')
             else:
                 print("Downloading the data file ..")
                 res = requests.get('http://db.csail.mit.edu/labdata/data.txt.gz')
                 url_content = res.content
-                csv_file = open('downloaded.csv', 'wb')
-                csv_file.write(url_content)
-                csv_file.close()
+                with open('downloaded.csv', 'wb') as csv_file:
+                    csv_file.write(url_content)
                 self.data = pd.read_csv('downloaded.csv', compression='gzip', sep=" ",
-                    names=['date' , 'time' , 'epoch', 'moteid', 'Temperature', 'Humidity', 'Light', 'Voltage'])
+                    names=['date' , 'time' , 'epoch', 'moteid', 'Temperature',
+                                'Humidity', 'Light', 'Voltage'])
                 self.data.to_csv('./Data/data.csv')
 
         self.data_clean = self.remove_outliers()
@@ -43,15 +63,6 @@ class Data():
         data_clean['timestamp'] = pd.to_datetime (data_clean['date'] + ' ' + data_clean['time'])
         data_clean = data_clean.set_index('timestamp')
         return data_clean
-
-    def clean_data(self, df_):
-        """
-        Remove outliers using the Z-score.
-        """
-        z_scores = zscore(df_)
-        abs_z_scores = np.abs(z_scores)
-        filtered_entries = (abs_z_scores < 3).all(axis=1)
-        return filtered_entries
 
     def get_day(self):
         """
@@ -80,17 +91,6 @@ class Data():
         x_day = self.data_clean[self.data_clean['date'] == least_missing.values[0][0]]
         x_day_temp = x_day[['time', 'epoch', 'moteid', 'Temperature', 'date']]
         return x_day_temp
-
-    def get_array_x(self, df_):
-        """
-        Fill the missing data and use pivot to get the data in an array shape.
-        """
-        x_array = df_.pivot(index='moteid', columns = 'epoch', values='Temperature')
-        # Fill missing data using forward fill => if the node did not make
-        # a new measurement it will buffer the previous one
-        x_array = x_array.ffill(axis = 'columns')
-        x_array = x_array.bfill(axis = 'columns')
-        return x_array
 
     def get_week(self):
         """
