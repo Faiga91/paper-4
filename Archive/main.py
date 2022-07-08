@@ -7,6 +7,7 @@ import warnings
 
 # third party import
 import pandas as pd
+import numpy as np
 from IPython import get_ipython
 
 from get_data import Data, get_array_x
@@ -58,8 +59,23 @@ sim_results_df = down_sampling.similarity_based()
 print(sim_results_df)
 
 
+# Based on data similarity
+#sim_results_df_arima = down_sampling.similarity_based_ARIMA(time_dic)
+#print(sim_results_df_arima)
+
+#%%
+
+X_day_temp['Temperature'] =  X_day_temp['Temperature'].apply(lambda x : np.ceil(10 * x) / 10)
+
+Temp_probabilities = X_day_temp.groupby('Temperature').size().div(len(X_day_temp))
+ref_prob = pd.Series(1e-10, index=Temp_probabilities.index)
+Temperature_value = ref_prob.index.values.tolist()
+
+down_sampling.voi_sampling_light(ref_prob, Temperature_value)
+df_results_VoI = pd.read_csv("./Results/VOI_results.csv")
 #%%
 sim_results_df['ThD'] = sim_results_df['ThD'].round(2)
+df_results_VoI['ThD'] = df_results_VoI['ThD'].round(1)
 
 results_plots = plot_graphs.PlotResults(thr_results_df, sim_results_df[::2])
 results_plots.plot_results1('./Figures/results1.pdf')

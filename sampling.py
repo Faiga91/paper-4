@@ -115,7 +115,7 @@ class Sampling():
         #X_ = round(X_0, 1)
         # metrics[0] = counts, metrics[1]=df_down, metrics[2]=kl_pq_l,
             #metrics[3] = results_list
-        metrics = [[], [] , []]
+        metrics = [[], [] , [], []]
         for _ in range(len(self.thresholds)):
             metrics[0].append(x_0.iloc[: , 0:60].size)
             metrics[1].append(x_0.copy())

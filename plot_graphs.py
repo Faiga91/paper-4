@@ -140,10 +140,9 @@ class PlotResults():
     """
     Class to plot the results.
     """
-    def __init__(self, threshold_results, similarity_results, voi_results):
+    def __init__(self, threshold_results, similarity_results):
         self.thr_res = threshold_results
         self.sim_res = similarity_results
-        self.voi_res = voi_results
 
     def plot_results1(self, filename):
         """
@@ -162,11 +161,6 @@ class PlotResults():
         sns.scatterplot(x ='Sampled', y='RMSE' , data= self.sim_res,
                     color='#1b9e77', marker = 'o', s=50)
 
-        sns.lineplot(x='Sampled', y ='RMSE' , data= self.voi_res, color='#7570b3', linestyle='--',
-                                label='VoI-based Scheduling')
-        sns.scatterplot(x ='Sampled', y ='RMSE' , data= self.voi_res,
-                    color='#7570b3', marker = 'o', s=50)
-
         plt.savefig(filename, bbox_inches='tight')
         plt.show()
 
@@ -184,10 +178,6 @@ class PlotResults():
                     linestyle='--', label='Similarity-based Scheduling')
         sns.scatterplot(x ='Sampl%', y ='NMAE' , data= self.sim_res, color='#1b9e77',
                              marker = 'o', s=50)
-        sns.lineplot(x = 'Sampl%', y = 'NMAE' , data= self.voi_res, color='#7570b3',
-                    linestyle='--', label='VoI-based Scheduling')
-        sns.scatterplot(x = 'Sampl%', y ='NMAE' , data= self.voi_res, color='#7570b3',
-                        marker = 'o', s=50)
 
         ax_.xaxis.set_major_formatter(PercentFormatter(1))
         plt.xlabel('Sampling Reduction%')
@@ -199,7 +189,7 @@ class PlotResults():
         """
         Plot results, using the hashed plot bars.
         """
-        _, ax_1 = plt.subplots(2,3,figsize=(15, 15))
+        _, ax_1 = plt.subplots(2,2,figsize=(15, 15))
 
         sns.barplot(x ='std', y ='NMAE' , data= self.thr_res, color='#d95f02',
                         label='Threshold-based', ax =ax_1[0,0])
@@ -210,22 +200,18 @@ class PlotResults():
                                 label='Similarity-based', ax =ax_1[0,1])
         sns.barplot(x='ThD' ,y='Sampl%',  data= self.sim_res, color='#1b9e77', alpha=0.7,
                         hatch='xx',label='%Reduction', ax=ax_1[1,1])
-        sns.barplot(x='ThD' ,y='NMAE',  data= self.voi_res, color='#7570b3',
-                        label='VoI-based', ax=ax_1[0,2])
-        sns.barplot(x='ThD' ,y='Sampl%',  data= self.voi_res, color='#7570b3', alpha=0.7,
-                    hatch='xx', label='%Reduction', ax=ax_1[1,2])
 
-        for ax_ in [ax_1[0,0], ax_1[0,1], ax_1[0,2]]:
+        for ax_ in [ax_1[0,0], ax_1[0,1]]:
             ax_.xaxis.set_tick_params(which='both', rotation=90)
             ax_.set_ylim(0, )
 
-        for ax_ in [ax_1[1,0], ax_1[1,1], ax_1[1,2]]:
+        for ax_ in [ax_1[1,0], ax_1[1,1]]:
             ax_.set_ylim(0, 1)
             ax_.yaxis.set_major_formatter(PercentFormatter(1))
             ax_.xaxis.set_tick_params(which='both', rotation=90)
             ax_.set(ylabel='Sampling Reduction%')
 
-        for ax_ in [ax_1[0,1], ax_1[0,2] , ax_1[1,1], ax_1[1,2]]:
+        for ax_ in [ax_1[0,1] , ax_1[1,1]]:
             ax_.set(ylabel=None)
             ax_.set(yticklabels=[])
 
@@ -235,8 +221,6 @@ class PlotResults():
         for ax_ in [ax_1[0,1], ax_1[1,1]]:
             ax_.set(xlabel='Similarity Threshold')
 
-        for ax_ in [ax_1[0,2], ax_1[1,2]]:
-            ax_.set(xlabel='KL-divergence Threshold')
 
         plt.savefig(filename , bbox_inches='tight')
         plt.show()
