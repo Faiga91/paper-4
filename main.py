@@ -9,7 +9,7 @@ import warnings
 import pandas as pd
 from IPython import get_ipython
 
-from get_data import Data, get_array_x
+from get_data import Data, get_array_x, MyDataset
 import plot_graphs
 from sampling import Sampling
 
@@ -22,6 +22,8 @@ warnings.filterwarnings("ignore")
 
 mydata = Data()
 X_day_temp = mydata.get_day()
+#%%
+
 #%%
 
 # Node 18 is an outlie

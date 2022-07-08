@@ -6,6 +6,8 @@ import pandas as pd
 import requests
 import numpy as np
 from scipy.stats import zscore
+import torch
+from torch.utils.data import Dataset
 
 def clean_data(df_):
     """
@@ -150,3 +152,19 @@ def light_level(light):
     if light > 500:
         return 'Very Bright'
     return None
+
+class MyDataset(Dataset):
+    """
+    Load the data from pandas dataframe to a tensor.
+    """
+    def __init__(self,df_train):
+        train_ = pd.read_csv(df_train)
+        train_ = train_[['epoch', 'Temperature', 'Humidity', 'Voltage',
+                'Light']].iloc[:20000]
+        self.train = torch.tensor(train_.values,dtype=torch.float32)
+
+    def __len__(self):
+        return len(self.train)
+
+    def __getitem__(self,idx):
+        return self.train[idx]
