@@ -191,12 +191,12 @@ class PlotResults():
         """
         _, ax_1 = plt.subplots(2,2,figsize=(15, 15))
 
-        sns.barplot(x ='std', y ='NMAE' , data= self.thr_res, color='#d95f02',
+        sns.barplot(x ='std', y ='RMSE' , data= self.thr_res, color='#d95f02',
                         label='Threshold-based', ax =ax_1[0,0])
         sns.barplot(x = 'std' , y='Sampl%',  data= self.thr_res, color='#d95f02',
                         alpha=0.7, hatch='xx',
                         label='%Reduction', ax=ax_1[1,0])
-        sns.barplot(x='ThD', y='NMAE' , data= self.sim_res, color='#1b9e77',
+        sns.barplot(x='ThD', y='RMSE' , data= self.sim_res, color='#1b9e77',
                                 label='Similarity-based', ax =ax_1[0,1])
         sns.barplot(x='ThD' ,y='Sampl%',  data= self.sim_res, color='#1b9e77', alpha=0.7,
                         hatch='xx',label='%Reduction', ax=ax_1[1,1])

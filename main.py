@@ -65,5 +65,5 @@ results_plots = plot_graphs.PlotResults(thr_results_df, sim_results_df[::2])
 results_plots.plot_results1('./Figures/results1.pdf')
 results_plots.plot_results2('./Figures/results2.pdf')
 results_plots.plot_results3('./Figures/results3.pdf')
-# %%
+
 # %%
