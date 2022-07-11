@@ -4,7 +4,9 @@ Main module that run all the other submodules in this folder.
 #%%
 # standard imports
 import warnings
+import os
 
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 # third party import
 import pandas as pd
 from IPython import get_ipython
@@ -12,6 +14,7 @@ from IPython import get_ipython
 from get_data import Data, get_array_x, MyDataset
 import plot_graphs
 from sampling import Sampling
+
 
 # Auto load changes in other referenced packages
 IPYTHON_INSTANCE = get_ipython()
@@ -22,7 +25,6 @@ warnings.filterwarnings("ignore")
 
 mydata = Data()
 X_day_temp = mydata.get_day()
-#%%
 
 #%%
 

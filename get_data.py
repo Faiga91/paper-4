@@ -157,10 +157,11 @@ class MyDataset(Dataset):
     """
     Load the data from pandas dataframe to a tensor.
     """
-    def __init__(self,df_train):
-        train_ = pd.read_csv(df_train)
-        train_ = train_[['epoch', 'Temperature', 'Humidity', 'Voltage',
-                'Light']].iloc[:20000]
+    def __init__(self):
+        mydata = Data()
+        train_ = mydata.get_day()
+        #train_ = pd.read_csv(df_train)
+        train_ = train_[['epoch', 'Temperature']]
         self.train = torch.tensor(train_.values,dtype=torch.float32)
 
     def __len__(self):
