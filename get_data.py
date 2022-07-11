@@ -161,7 +161,7 @@ class MyDataset(Dataset):
         mydata = Data()
         train_ = mydata.get_day()
         #train_ = pd.read_csv(df_train)
-        train_ = train_[['epoch', 'Temperature']]
+        train_ = train_[['Temperature']]
         self.train = torch.tensor(train_.values,dtype=torch.float32)
 
     def __len__(self):

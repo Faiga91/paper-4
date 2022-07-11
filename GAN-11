@@ -326,3 +326,7 @@ for epoch in range(n_epochs):
             mean_discriminator_loss = 0
         cur_step += 1
 # %%
+
+plt.plot(real.detach().numpy()[:,1])
+plt.plot(fake.detach().numpy()[:,1])
+# %%
