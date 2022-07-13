@@ -159,7 +159,7 @@ class MyDataset(Dataset):
     """
     def __init__(self):
         mydata = Data()
-        train_ = mydata.get_day()
+        train_ = mydata.get_week()
         #train_ = pd.read_csv(df_train)
         
         train_ = train_[train_['moteid'] == 1.0]
