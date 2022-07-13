@@ -165,7 +165,7 @@ class MyDataset(Dataset):
         train_ = train_[train_['moteid'] == 1.0]
         train_ = train_[['Temperature']]
 
-        self.train = torch.tensor(train_.values,dtype=torch.float32)
+        self.train = torch.from_numpy(train_.values)
 
     def __len__(self):
         return len(self.train)
