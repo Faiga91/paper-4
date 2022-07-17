@@ -197,30 +197,6 @@ def get_disc_loss(gen, disc, criterion, real, num_inputs, z_dim, device):
 
     return disc_loss
 
-# -----------------------------
-def get_gen_loss(gen, disc, criterion, num_inputs, z_dim, device):
-    '''
-    Return the loss of the generator given inputs.
-    Parameters:
-        gen: the generator model, which returns an input given z-dimensional noise
-        disc: the discriminator model, which returns a single-dimensional prediction of real/fake
-        criterion: the loss function, which should be used to compare
-               the discriminator's predictions to the ground truth reality of the inputs
-               (e.g. fake = 0, real = 1)
-        num_inputs: the number of inputs the generator should produce,
-                which is also the length of the real inputs
-        z_dim: the dimension of the noise vector, a scalar
-        device: the device type
-    Returns:
-        gen_loss: a torch scalar loss value for the current batch
-    '''
-    noise = get_noise(num_inputs, z_dim, device=device)
-    fake = gen(noise)
-    pred_f = disc(fake)
-    # pylint: disable=E1101
-    ground_truth_ = torch.torch.ones_like(pred_f)
-    gen_loss = criterion(pred_f, ground_truth_)
-    return gen_loss
 
 def get_crit_loss(crit_fake_pred, crit_real_pred, gp, c_lambda):
     '''
