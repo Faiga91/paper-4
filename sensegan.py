@@ -18,13 +18,13 @@ def get_generator_block(self, input_channels, output_channels, kernel_size=3, st
     '''
     if not final_layer:
         return nn.Sequential(
-            nn.ConvTranspose2d(input_channels, output_channels, kernel_size, stride),
-            nn.BatchNorm2d(output_channels),
+            nn.ConvTranspose1d(input_channels, output_channels, kernel_size, stride),
+            nn.BatchNorm1d(output_channels),
             nn.ReLU()
         )
     else: # Final Layer
         return nn.Sequential(
-            nn.ConvTranspose2d(input_channels, output_channels, kernel_size, stride),
+            nn.ConvTranspose1d(input_channels, output_channels, kernel_size, stride),
             nn.Tanh()
         )
     
@@ -63,13 +63,13 @@ class Generator(nn.Module):
         '''
         if not final_layer:
             return nn.Sequential(
-                nn.ConvTranspose2d(input_channels, output_channels, kernel_size, stride),
-                nn.BatchNorm2d(output_channels),
+                nn.ConvTranspose1d(input_channels, output_channels, kernel_size, stride),
+                nn.BatchNorm1d(output_channels),
                 nn.ReLU(inplace=True),
             )
         else:
             return nn.Sequential(
-                nn.ConvTranspose2d(input_channels, output_channels, kernel_size, stride),
+                nn.ConvTranspose1d(input_channels, output_channels, kernel_size, stride),
                 nn.Tanh(),
             )
 
@@ -122,13 +122,13 @@ def get_discriminator_block(self, input_channels, output_channels, kernel_size=4
     '''
     if not final_layer:
         return nn.Sequential(
-            nn.Conv2d(input_channels, output_channels, kernel_size, stride),
-            nn.BatchNorm2d(output_channels),
+            nn.Conv1d(input_channels, output_channels, kernel_size, stride),
+            nn.BatchNorm1d(output_channels),
             nn.LeakyReLU(negative_slope=0.2)
         )
     else: # Final Layer
         return nn.Sequential(
-            nn.Conv2d(input_channels, output_channels, kernel_size, stride)
+            nn.Conv1d(input_channels, output_channels, kernel_size, stride)
         )
 
 class Discriminator(nn.Module):
@@ -284,13 +284,13 @@ class Critic(nn.Module):
         '''
         if not final_layer:
             return nn.Sequential(
-                nn.Conv2d(input_channels, output_channels, kernel_size, stride),
-                nn.BatchNorm2d(output_channels),
+                nn.Conv1d(input_channels, output_channels, kernel_size, stride),
+                nn.BatchNorm1d(output_channels),
                 nn.LeakyReLU(0.2, inplace=True),
             )
         else:
             return nn.Sequential(
-                nn.Conv2d(input_channels, output_channels, kernel_size, stride),
+                nn.Conv1d(input_channels, output_channels, kernel_size, stride),
             )
 
     def forward(self, image):
