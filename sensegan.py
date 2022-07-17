@@ -34,38 +34,65 @@ class Generator(nn.Module):
     Generator Class
     Values:
         z_dim: the dimension of the noise vector, a scalar
-        in_dim: the dimension of the input
+        im_chan: the number of channels in the images, fitted for the dataset used, a scalar
+              (MNIST is black-and-white, so 1 channel is your default)
         hidden_dim: the inner dimension, a scalar
     '''
-    def __init__(self, z_dim=10, in_dim=1, hidden_dim=128):
-        super().__init__()
+    def __init__(self, z_dim=10, im_chan=1, hidden_dim=64):
+        super(Generator, self).__init__()
+        self.z_dim = z_dim
         # Build the neural network
         self.gen = nn.Sequential(
-            get_generator_block(z_dim, hidden_dim),
-            get_generator_block(hidden_dim, hidden_dim * 2),
-            get_generator_block(hidden_dim * 2, hidden_dim * 4),
-            get_generator_block(hidden_dim * 4, hidden_dim * 8),
-
-            nn.Linear(hidden_dim * 8, in_dim),
-            nn.Sigmoid()
-
+            self.make_gen_block(z_dim, hidden_dim * 4),
+            self.make_gen_block(hidden_dim * 4, hidden_dim * 2, kernel_size=4, stride=1),
+            self.make_gen_block(hidden_dim * 2, hidden_dim),
+            self.make_gen_block(hidden_dim, im_chan, kernel_size=4, final_layer=True),
         )
+
+    def make_gen_block(self, input_channels, output_channels, kernel_size=3, stride=2, final_layer=False):
+        '''
+        Function to return a sequence of operations corresponding to a generator block of DCGAN;
+        a transposed convolution, a batchnorm (except in the final layer), and an activation.
+        Parameters:
+            input_channels: how many channels the input feature representation has
+            output_channels: how many channels the output feature representation should have
+            kernel_size: the size of each convolutional filter, equivalent to (kernel_size, kernel_size)
+            stride: the stride of the convolution
+            final_layer: a boolean, true if it is the final layer and false otherwise 
+                      (affects activation and batchnorm)
+        '''
+        if not final_layer:
+            return nn.Sequential(
+                nn.ConvTranspose2d(input_channels, output_channels, kernel_size, stride),
+                nn.BatchNorm2d(output_channels),
+                nn.ReLU(inplace=True),
+            )
+        else:
+            return nn.Sequential(
+                nn.ConvTranspose2d(input_channels, output_channels, kernel_size, stride),
+                nn.Tanh(),
+            )
+
     def forward(self, noise):
         '''
         Function for completing a forward pass of the generator: Given a noise tensor,
-        returns generated time-series.
+        returns generated images.
         Parameters:
             noise: a noise tensor with dimensions (n_samples, z_dim)
         '''
-        return self.gen(noise)
+        x = noise.view(len(noise), self.z_dim, 1, 1)
+        return self.gen(x)
 
-    # Needed for grading
-    def get_gen(self):
-        '''
-        Returns:
-            the sequential model
-        '''
-        return self.gen
+def get_noise(n_samples, z_dim, device='cpu'):
+    '''
+    Function for creating noise vectors: Given the dimensions (n_samples, z_dim)
+    creates a tensor of that shape filled with random numbers from the normal distribution.
+    Parameters:
+      n_samples: the number of samples to generate, a scalar
+      z_dim: the dimension of the noise vector, a scalar
+      device: the device type
+    '''
+    return torch.randn(n_samples, z_dim, device=device)
 
 def get_noise(n_samples, z_dim, device='cuda'):
     '''
