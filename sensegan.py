@@ -80,8 +80,8 @@ class Generator(nn.Module):
         Parameters:
             noise: a noise tensor with dimensions (n_samples, z_dim)
         '''
-        #x = noise.view(len(noise), self.z_dim, 1, 1)
-        return self.gen(noise)
+        x = noise.view(len(noise), self.z_dim, 1, 1)
+        return self.gen(x)
 
 def get_noise(n_samples, z_dim, device='cpu'):
     '''
