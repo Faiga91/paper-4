@@ -301,7 +301,8 @@ class Critic(nn.Module):
             image: a flattened image tensor with dimension (im_chan)
         '''
         crit_pred = self.crit(image)
-        return crit_pred.view(len(crit_pred), -1)
+        #return crit_pred.view(len(crit_pred), -1)
+        return crit_pred
 
 def gradient_penalty(gradient):
     '''
