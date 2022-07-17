@@ -262,7 +262,7 @@ class Critic(nn.Module):
               (MNIST is black-and-white, so 1 channel is your default)
         hidden_dim: the inner dimension, a scalar
     '''
-    def __init__(self, im_chan=1440, hidden_dim=64):
+    def __init__(self, im_chan=1, hidden_dim=64):
         super(Critic, self).__init__()
         self.crit = nn.Sequential(
             self.make_crit_block(im_chan, hidden_dim),
