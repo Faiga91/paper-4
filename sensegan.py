@@ -5,7 +5,7 @@ import torch
 from torch import nn
 
 
-def get_generator_block(input_dim, output_dim):
+def get_generator_block(self, input_channels, output_channels, kernel_size=3, stride=2, final_layer=False):
     '''
     Function for returning a block of the generator's neural network
     given input and output dimensions.
@@ -16,11 +16,18 @@ def get_generator_block(input_dim, output_dim):
         a generator neural network layer, with a linear transformation
           followed by a batch normalization and then a relu activation
     '''
-    return nn.Sequential(
-        nn.Linear(input_dim, output_dim),
-        nn.BatchNorm1d(output_dim),
-        nn.ReLU(inplace=True)
-    )
+    if not final_layer:
+        return nn.Sequential(
+            nn.ConvTranspose2d(input_channels, output_channels, kernel_size, stride),
+            nn.BatchNorm2d(output_channels),
+            nn.ReLU()
+        )
+    else: # Final Layer
+        return nn.Sequential(
+            nn.ConvTranspose2d(input_channels, output_channels, kernel_size, stride),
+            nn.Tanh()
+        )
+    
 
 class Generator(nn.Module):
     '''
@@ -74,7 +81,7 @@ def get_noise(n_samples, z_dim, device='cuda'):
     # pylint: disable=E1101
     return  torch.randn(n_samples, z_dim, device = device)
 
-def get_discriminator_block(input_dim, output_dim):
+def get_discriminator_block(self, input_channels, output_channels, kernel_size=4, stride=2, final_layer=False):
     '''
     Discriminator Block
     Function for returning a neural network of the discriminator given input and output dimensions.
@@ -86,10 +93,16 @@ def get_discriminator_block(input_dim, output_dim):
           followed by an nn.LeakyReLU activation with negative slope of 0.2
           (https://pytorch.org/docs/master/generated/torch.nn.LeakyReLU.html)
     '''
-    return nn.Sequential(
-        nn.Linear(input_dim, output_dim),
-        nn.LeakyReLU(negative_slope=0.2)
-    )
+    if not final_layer:
+        return nn.Sequential(
+            nn.Conv2d(input_channels, output_channels, kernel_size, stride),
+            nn.BatchNorm2d(output_channels),
+            nn.LeakyReLU(negative_slope=0.2)
+        )
+    else: # Final Layer
+        return nn.Sequential(
+            nn.Conv2d(input_channels, output_channels, kernel_size, stride)
+        )
 
 class Discriminator(nn.Module):
     '''
