@@ -170,7 +170,7 @@ def get_disc_loss(gen, disc, criterion, real, num_inputs, z_dim, device):
 
     return disc_loss
 
-
+# -----------------------------
 def get_gen_loss(gen, disc, criterion, num_inputs, z_dim, device):
     '''
     Return the loss of the generator given inputs.
@@ -194,3 +194,106 @@ def get_gen_loss(gen, disc, criterion, num_inputs, z_dim, device):
     ground_truth_ = torch.torch.ones_like(pred_f)
     gen_loss = criterion(pred_f, ground_truth_)
     return gen_loss
+
+def get_crit_loss(crit_fake_pred, crit_real_pred, gp, c_lambda):
+    '''
+    Return the loss of a critic given the critic's scores for fake and real images,
+    the gradient penalty, and gradient penalty weight.
+    Parameters:
+        crit_fake_pred: the critic's scores of the fake images
+        crit_real_pred: the critic's scores of the real images
+        gp: the unweighted gradient penalty
+        c_lambda: the current weight of the gradient penalty 
+    Returns:
+        crit_loss: a scalar for the critic's loss, accounting for the relevant factors
+    '''
+    #### START CODE HERE ####
+    crit_loss = torch.mean(crit_fake_pred) - torch.mean(crit_real_pred) + c_lambda * gp
+    #### END CODE HERE ####
+    return crit_loss
+
+
+def get_gen_loss(crit_fake_pred):
+    '''
+    Return the loss of a generator given the critic's scores of the generator's fake images.
+    Parameters:
+        crit_fake_pred: the critic's scores of the fake images
+    Returns:
+        gen_loss: a scalar loss value for the current batch of the generator
+    '''
+    #### START CODE HERE ####
+    gen_loss = - torch.mean(crit_fake_pred)
+    #### END CODE HERE ####
+    return gen_loss
+
+
+class Critic(nn.Module):
+    '''
+    Critic Class
+    Values:
+        im_chan: the number of channels in the images, fitted for the dataset used, a scalar
+              (MNIST is black-and-white, so 1 channel is your default)
+        hidden_dim: the inner dimension, a scalar
+    '''
+    def __init__(self, im_chan=1, hidden_dim=64):
+        super(Critic, self).__init__()
+        self.crit = nn.Sequential(
+            self.make_crit_block(im_chan, hidden_dim),
+            self.make_crit_block(hidden_dim, hidden_dim * 2),
+            self.make_crit_block(hidden_dim * 2, 1, final_layer=True),
+        )
+
+    def make_crit_block(self, input_channels, output_channels, kernel_size=4, stride=2, final_layer=False):
+        '''
+        Function to return a sequence of operations corresponding to a critic block of DCGAN;
+        a convolution, a batchnorm (except in the final layer), and an activation (except in the final layer).
+        Parameters:
+            input_channels: how many channels the input feature representation has
+            output_channels: how many channels the output feature representation should have
+            kernel_size: the size of each convolutional filter, equivalent to (kernel_size, kernel_size)
+            stride: the stride of the convolution
+            final_layer: a boolean, true if it is the final layer and false otherwise 
+                      (affects activation and batchnorm)
+        '''
+        if not final_layer:
+            return nn.Sequential(
+                nn.Conv2d(input_channels, output_channels, kernel_size, stride),
+                nn.BatchNorm2d(output_channels),
+                nn.LeakyReLU(0.2, inplace=True),
+            )
+        else:
+            return nn.Sequential(
+                nn.Conv2d(input_channels, output_channels, kernel_size, stride),
+            )
+
+    def forward(self, image):
+        '''
+        Function for completing a forward pass of the critic: Given an image tensor, 
+        returns a 1-dimension tensor representing fake/real.
+        Parameters:
+            image: a flattened image tensor with dimension (im_chan)
+        '''
+        crit_pred = self.crit(image)
+        return crit_pred.view(len(crit_pred), -1)
+
+def gradient_penalty(gradient):
+    '''
+    Return the gradient penalty, given a gradient.
+    Given a batch of image gradients, you calculate the magnitude of each image's gradient
+    and penalize the mean quadratic distance of each magnitude to 1.
+    Parameters:
+        gradient: the gradient of the critic's scores, with respect to the mixed image
+    Returns:
+        penalty: the gradient penalty
+    '''
+    # Flatten the gradients so that each row captures one image
+    gradient = gradient.view(len(gradient), -1)
+
+    # Calculate the magnitude of every row
+    gradient_norm = gradient.norm(2, dim=1)
+    
+    # Penalize the mean squared distance of the gradient norms from 1
+    #### START CODE HERE ####
+    penalty = torch.mean((1 - gradient_norm) ** 2)
+    #### END CODE HERE ####
+    return penalty
