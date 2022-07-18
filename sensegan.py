@@ -25,7 +25,7 @@ class Generator(nn.Module):
             self.make_gen_block(hidden_dim, im_chan, kernel_size=1, final_layer=True),
         )
 
-    def make_gen_block(self, input_channels, output_channels, kernel_size=1, stride=2, final_layer=False):
+    def make_gen_block(self, input_channels, output_channels, kernel_size=1, stride=1, final_layer=False):
         '''
         Function to return a sequence of operations corresponding to a generator block of DCGAN;
         a transposed convolution, a batchnorm (except in the final layer), and an activation.
@@ -173,7 +173,7 @@ class Critic(nn.Module):
             self.make_crit_block(hidden_dim * 2, 1, final_layer=True),
         )
 
-    def make_crit_block(self, input_channels, output_channels, kernel_size=1, stride=2, final_layer=False):
+    def make_crit_block(self, input_channels, output_channels, kernel_size=1, stride=1, final_layer=False):
         '''
         Function to return a sequence of operations corresponding to a critic block of DCGAN;
         a convolution, a batchnorm (except in the final layer), and an activation (except in the final layer).
