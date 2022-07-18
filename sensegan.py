@@ -14,7 +14,7 @@ class Generator(nn.Module):
               (MNIST is black-and-white, so 1 channel is your default)
         hidden_dim: the inner dimension, a scalar
     '''
-    def __init__(self, z_dim=10, im_chan=1, hidden_dim=64):
+    def __init__(self, z_dim=10, im_chan=1, hidden_dim=1440):
         super(Generator, self).__init__()
         self.z_dim = z_dim
         # Build the neural network
@@ -165,12 +165,12 @@ class Critic(nn.Module):
               (MNIST is black-and-white, so 1 channel is your default)
         hidden_dim: the inner dimension, a scalar
     '''
-    def __init__(self, im_chan=1, hidden_dim=64):
+    def __init__(self, im_chan=1, hidden_dim=1440):
         super(Critic, self).__init__()
         self.crit = nn.Sequential(
             self.make_crit_block(im_chan, hidden_dim),
-            self.make_crit_block(hidden_dim, hidden_dim * 2),
-            self.make_crit_block(hidden_dim * 2, 1, final_layer=True),
+            self.make_crit_block(hidden_dim, hidden_dim),
+            self.make_crit_block(hidden_dim, 1, final_layer=True),
         )
 
     def make_crit_block(self, input_channels, output_channels, kernel_size=1, stride=1, final_layer=False):
