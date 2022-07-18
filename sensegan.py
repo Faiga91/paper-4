@@ -186,9 +186,6 @@ class Critic(nn.Module):
                       (affects activation and batchnorm)
         '''
 
-        print('Input Channels:',  input_channels)
-        print('Output Channels:', output_channels)
-
         if not final_layer:
             return nn.Sequential(
                 nn.Conv1d(input_channels, output_channels, kernel_size, stride),
