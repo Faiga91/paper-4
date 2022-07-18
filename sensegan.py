@@ -20,9 +20,9 @@ class Generator(nn.Module):
         # Build the neural network
         self.gen = nn.Sequential(
             self.make_gen_block(z_dim, hidden_dim * 4),
-            self.make_gen_block(hidden_dim * 4, hidden_dim * 2, kernel_size=4, stride=1),
+            self.make_gen_block(hidden_dim * 4, hidden_dim * 2, kernel_size=3, stride=1),
             self.make_gen_block(hidden_dim * 2, hidden_dim),
-            self.make_gen_block(hidden_dim, im_chan, kernel_size=4, final_layer=True),
+            self.make_gen_block(hidden_dim, im_chan, kernel_size=3, final_layer=True),
         )
 
     def make_gen_block(self, input_channels, output_channels, kernel_size=3, stride=2, final_layer=False):
@@ -173,7 +173,7 @@ class Critic(nn.Module):
             self.make_crit_block(hidden_dim * 2, 1, final_layer=True),
         )
 
-    def make_crit_block(self, input_channels, output_channels, kernel_size=4, stride=2, final_layer=False):
+    def make_crit_block(self, input_channels, output_channels, kernel_size=3, stride=2, final_layer=False):
         '''
         Function to return a sequence of operations corresponding to a critic block of DCGAN;
         a convolution, a batchnorm (except in the final layer), and an activation (except in the final layer).
